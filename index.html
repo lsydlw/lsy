@@ -1,0 +1,848 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>李思怡18岁生日快乐</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background: #000;
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Microsoft YaHei', sans-serif;
+        }
+        
+        #container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+        }
+        
+        #canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+        
+        #birthdayMessage {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            color: white;
+            opacity: 0;
+            transition: opacity 2s ease-in-out;
+            z-index: 10;
+            pointer-events: none;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.7);
+            width: 90%;
+            max-width: 800px;
+        }
+        
+        h1 {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            background: linear-gradient(45deg, #ffffff, #e0e0e0, #a0a0a0);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: glow 2s infinite alternate;
+            filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.5));
+        }
+        
+        h2 {
+            font-size: 3rem;
+            background: linear-gradient(45deg, #a0a0a0, #e0e0e0, #ffffff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: glow 2s infinite alternate-reverse;
+            filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.5));
+        }
+        
+        #timer {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            color: #e0e0e0;
+            font-size: 1.5rem;
+            z-index: 5;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 10px 15px;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
+        }
+        
+        @keyframes glow {
+            from {
+                filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.4));
+            }
+            to {
+                filter: drop-shadow(0 0 15px rgba(255, 255, 255, 0.6));
+            }
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .stage-indicator {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 15px;
+            z-index: 5;
+        }
+        
+        .stage-dot {
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            transition: all 0.5s ease;
+            box-shadow: 0 0 5px rgba(255, 255, 255, 0.3);
+        }
+        
+        .stage-dot.active {
+            background: #ffffff;
+            transform: scale(1.5);
+            box-shadow: 0 0 12px #ffffff;
+        }
+        
+        .floating-text {
+            position: absolute;
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 1.2rem;
+            animation: float 10s infinite linear;
+            z-index: 2;
+            text-shadow: 0 0 5px rgba(255, 255, 255, 0.4);
+        }
+        
+        @keyframes float {
+            0% {
+                transform: translateY(100vh) rotate(0deg);
+                opacity: 0;
+            }
+            10% {
+                opacity: 0.8;
+            }
+            90% {
+                opacity: 0.8;
+            }
+            100% {
+                transform: translateY(-100px) rotate(360deg);
+                opacity: 0;
+            }
+        }
+        
+        .center-firework {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 300px;
+            height: 300px;
+            z-index: 5;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 1s ease;
+        }
+        
+        .firework-circle {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            border: 1px solid transparent;
+            animation: pulse 2s infinite;
+            border-color: rgba(255, 255, 255, 0.6);
+        }
+        
+        @keyframes pulse {
+            0% {
+                width: 0;
+                height: 0;
+                opacity: 1;
+                border-color: rgba(255, 255, 255, 0.8);
+            }
+            100% {
+                width: 300px;
+                height: 300px;
+                opacity: 0;
+                border-color: rgba(255, 255, 255, 0);
+            }
+        }
+        
+        .celebration {
+            position: absolute;
+            font-size: 2rem;
+            color: #ffffff;
+            opacity: 0;
+            z-index: 5;
+            animation: celebrate 2s ease-out;
+            text-shadow: 0 0 8px rgba(255, 255, 255, 0.6);
+        }
+        
+        @keyframes celebrate {
+            0% {
+                transform: scale(0) rotate(0deg);
+                opacity: 0;
+            }
+            50% {
+                transform: scale(1.2) rotate(180deg);
+                opacity: 1;
+            }
+            100% {
+                transform: scale(1) rotate(360deg);
+                opacity: 0;
+            }
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2.5rem;
+            }
+            
+            h2 {
+                font-size: 2rem;
+            }
+            
+            #timer {
+                font-size: 1.2rem;
+                padding: 8px 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="container">
+        <canvas id="canvas"></canvas>
+        <div id="timer">00:15</div>
+        <div class="stage-indicator">
+            <div class="stage-dot active" id="stage1"></div>
+            <div class="stage-dot" id="stage2"></div>
+            <div class="stage-dot" id="stage3"></div>
+            <div class="stage-dot" id="stage4"></div>
+            <div class="stage-dot" id="stage5"></div>
+        </div>
+        <div id="birthdayMessage" class="hidden">
+            <h1>李思怡</h1>
+            <h2>18岁生日快乐</h2>
+        </div>
+        <div class="center-firework" id="centerFirework">
+            <div class="firework-circle"></div>
+            <div class="firework-circle" style="animation-delay: 0.5s"></div>
+            <div class="firework-circle" style="animation-delay: 1s"></div>
+        </div>
+    </div>
+
+    <script>
+        // 获取Canvas元素和上下文
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        const birthdayMessage = document.getElementById('birthdayMessage');
+        const timer = document.getElementById('timer');
+        const centerFirework = document.getElementById('centerFirework');
+        
+        // 设置Canvas尺寸为窗口大小
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        
+        // 创建浮动祝福文字
+        const blessings = ["生日快乐", "永远美丽", "天天开心", "心想事成", "青春永驻"];
+        blessings.forEach((blessing, index) => {
+            const textEl = document.createElement('div');
+            textEl.className = 'floating-text';
+            textEl.textContent = blessing;
+            textEl.style.left = `${10 + index * 20}%`;
+            textEl.style.animationDelay = `${index * 2}s`;
+            document.getElementById('container').appendChild(textEl);
+        });
+        
+        // 烟花阶段配置 - 黑白细腻版（核心修改：线条细、黑白配色、低粒子密度）
+        const stages = [
+            { // 阶段1: 0-3秒 - 基础白灰烟花
+                colors: ['#ffffff', '#f0f0f0', '#e0e0e0'], // 纯黑白灰配色
+                particleCount: 60, // 减少粒子数量，避免密集
+                explosionShape: 'circle',
+                gravity: 0.04, // 增大重力，更贴近真实下落
+                trailLength: 4, // 缩短拖尾，避免线条堆积
+                fireworkSize: 1.2, // 缩小烟花本体
+                sparkCount: 4, // 减少火花数量
+                sparkSize: 0.6 // 缩小火花尺寸
+            },
+            { // 阶段2: 3-6秒 - 浅灰螺旋烟花
+                colors: ['#e0e0e0', '#d0d0d0', '#c0c0c0'],
+                particleCount: 80,
+                explosionShape: 'spiral',
+                gravity: 0.035,
+                trailLength: 5,
+                fireworkSize: 1.4,
+                sparkCount: 5,
+                sparkSize: 0.7
+            },
+            { // 阶段3: 6-9秒 - 灰白心形烟花
+                colors: ['#ffffff', '#e8e8e8', '#d0d0d0', '#b8b8b8'],
+                particleCount: 100,
+                explosionShape: 'heart',
+                gravity: 0.03,
+                trailLength: 6,
+                fireworkSize: 1.6,
+                sparkCount: 6,
+                sparkSize: 0.8
+            },
+            { // 阶段4: 9-12秒 - 多层灰白星形烟花
+                colors: ['#f5f5f5', '#e0e0e0', '#c8c8c8', '#b0b0b0'],
+                particleCount: 120,
+                explosionShape: 'star',
+                gravity: 0.025,
+                trailLength: 7,
+                fireworkSize: 1.8,
+                sparkCount: 7,
+                sparkSize: 0.9
+            },
+            { // 阶段5: 12-15秒 - 最终白灰绚丽效果
+                colors: ['#ffffff', '#f0f0f0', '#e0e0e0', '#d0d0d0', '#c0c0c0'],
+                particleCount: 140,
+                explosionShape: 'circle',
+                gravity: 0.02,
+                trailLength: 8,
+                fireworkSize: 2.0,
+                sparkCount: 8,
+                sparkSize: 1.0
+            }
+        ];
+        
+        let currentStage = 0;
+        let startTime = Date.now();
+        let elapsedTime = 0;
+        let centerFireworkActive = false;
+        
+        // 火花类 - 细腻黑白版
+        class Spark {
+            constructor(x, y, color, velocity, size, life) {
+                this.x = x;
+                this.y = y;
+                this.color = color;
+                this.velocity = velocity;
+                this.size = size; // 已缩小尺寸
+                this.life = life;
+                this.maxLife = life;
+            }
+            
+            draw() {
+                const lifeRatio = this.life / this.maxLife;
+                ctx.save();
+                ctx.globalAlpha = lifeRatio * 0.8; // 降低透明度，更自然
+                
+                // 绘制细火花（核心：缩小半径）
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size * lifeRatio, 0, Math.PI * 2, false);
+                ctx.fillStyle = this.color;
+                ctx.fill();
+                
+                // 弱化光晕（避免粗线条感）
+                ctx.globalAlpha = lifeRatio * 0.1;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size * lifeRatio * 1.5, 0, Math.PI * 2, false);
+                ctx.fillStyle = this.color;
+                ctx.fill();
+                
+                ctx.restore();
+            }
+            
+            update() {
+                this.x += this.velocity.x;
+                this.y += this.velocity.y;
+                this.velocity.x *= 0.985; // 微调摩擦，让轨迹更平滑
+                this.velocity.y *= 0.985;
+                this.life--;
+            }
+        }
+        
+        // 烟花粒子类 - 细线条版
+        class Particle {
+            constructor(x, y, color, velocity, size = 1, stageConfig) {
+                this.x = x;
+                this.y = y;
+                this.color = color;
+                this.velocity = velocity;
+                this.size = size; // 基础尺寸已缩小
+                this.alpha = 0.9; // 降低初始透明度
+                this.gravity = stageConfig.gravity;
+                this.friction = 0.98;
+                this.trail = [];
+                this.maxTrailLength = stageConfig.trailLength;
+                this.sparks = [];
+                
+                // 创建细火花（减少数量+缩小尺寸）
+                for (let i = 0; i < stageConfig.sparkCount; i++) {
+                    const sparkVelocity = {
+                        x: (Math.random() - 0.5) * 0.8, // 降低火花速度，更贴近真实
+                        y: (Math.random() - 0.5) * 0.8
+                    };
+                    this.sparks.push(new Spark(
+                        this.x, 
+                        this.y, 
+                        this.color, 
+                        sparkVelocity, 
+                        stageConfig.sparkSize,
+                        20 + Math.random() * 15 // 缩短火花寿命
+                    ));
+                }
+            }
+            
+            draw() {
+                ctx.save();
+                ctx.globalAlpha = this.alpha;
+                
+                // 绘制极细轨迹（核心修改：lineWidth缩至size/4）
+                if (this.trail.length > 1) {
+                    ctx.beginPath();
+                    ctx.moveTo(this.trail[0].x, this.trail[0].y);
+                    for (let i = 1; i < this.trail.length; i++) {
+                        ctx.lineTo(this.trail[i].x, this.trail[i].y);
+                    }
+                    ctx.strokeStyle = this.color;
+                    ctx.lineWidth = this.size / 4; // 极细线条，避免粗笨
+                    ctx.lineCap = 'round'; // 线条圆角，更细腻
+                    ctx.stroke();
+                }
+                
+                // 绘制小粒子本体
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size * 0.8, 0, Math.PI * 2, false);
+                ctx.fillStyle = this.color;
+                ctx.fill();
+                
+                // 弱化粒子光晕
+                ctx.globalAlpha = this.alpha * 0.1;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size * 1.5, 0, Math.PI * 2, false);
+                ctx.fillStyle = this.color;
+                ctx.fill();
+                
+                // 绘制细火花
+                this.sparks.forEach(spark => {
+                    spark.draw();
+                });
+                
+                ctx.restore();
+            }
+            
+            update() {
+                // 保存轨迹点（控制数量，避免堆积）
+                this.trail.push({x: this.x, y: this.y});
+                if (this.trail.length > this.maxTrailLength) {
+                    this.trail.shift();
+                }
+                
+                this.velocity.x *= this.friction;
+                this.velocity.y *= this.friction;
+                this.velocity.y += this.gravity;
+                this.x += this.velocity.x;
+                this.y += this.velocity.y;
+                this.alpha -= 0.012; // 加快透明度衰减，避免残留
+                
+                // 更新火花
+                this.sparks.forEach((spark, index) => {
+                    spark.update();
+                    if (spark.life <= 0) {
+                        this.sparks.splice(index, 1);
+                    }
+                });
+            }
+        }
+        
+        // 烟花类 - 细线条黑白版
+        class Firework {
+            constructor(x, y, targetX, targetY, stageConfig, isCenter = false) {
+                this.x = x;
+                this.y = y;
+                this.targetX = targetX;
+                this.targetY = targetY;
+                this.distance = Math.hypot(targetX - x, targetY - y);
+                this.speed = isCenter ? 12 : 10; // 降低上升速度，更真实
+                this.velocity = {
+                    x: (targetX - x) / this.distance * this.speed,
+                    y: (targetY - y) / this.distance * this.speed
+                };
+                this.color = stageConfig.colors[Math.floor(Math.random() * stageConfig.colors.length)];
+                this.particles = [];
+                this.exploded = false;
+                this.trail = [];
+                this.stageConfig = stageConfig;
+                this.isCenter = isCenter;
+                this.sparks = [];
+                
+                // 创建上升时的细火花
+                for (let i = 0; i < 3; i++) {
+                    this.sparks.push(new Spark(
+                        this.x, 
+                        this.y, 
+                        this.color, 
+                        {
+                            x: (Math.random() - 0.5) * 0.4, // 降低火花扩散
+                            y: (Math.random() - 0.5) * 0.4
+                        }, 
+                        0.5, // 极细火花
+                        15 // 短寿命
+                    ));
+                }
+            }
+            
+            draw() {
+                if (!this.exploded) {
+                    // 绘制上升时的细火花
+                    this.sparks.forEach(spark => {
+                        spark.draw();
+                    });
+                    
+                    // 绘制极细上升轨迹（核心修改：lineWidth缩至1px内）
+                    ctx.beginPath();
+                    ctx.moveTo(this.x, this.y);
+                    ctx.lineTo(this.x - this.velocity.x * 0.5, this.y - this.velocity.y * 0.5);
+                    ctx.strokeStyle = this.color;
+                    ctx.lineWidth = this.isCenter ? 1.2 : 1.0; // 最细1px，避免粗线条
+                    ctx.lineCap = 'round';
+                    ctx.stroke();
+                    
+                    // 绘制小尺寸烟花头部
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y, this.isCenter ? 2.0 : 1.5, 0, Math.PI * 2, false);
+                    ctx.fillStyle = this.color;
+                    ctx.fill();
+                    
+                    // 弱化头部光晕
+                    ctx.globalAlpha = 0.1;
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y, this.isCenter ? 3.5 : 2.5, 0, Math.PI * 2, false);
+                    ctx.fillStyle = this.color;
+                    ctx.fill();
+                    ctx.globalAlpha = 1;
+                }
+            }
+            
+            update() {
+                if (!this.exploded) {
+                    this.x += this.velocity.x;
+                    this.y += this.velocity.y;
+                    
+                    // 更新上升时的细火花
+                    this.sparks.forEach((spark, index) => {
+                        spark.x = this.x + (Math.random() - 0.5) * 5; // 缩小火花偏移
+                        spark.y = this.y + (Math.random() - 0.5) * 5;
+                        spark.update();
+                        if (spark.life <= 0) {
+                            this.sparks.splice(index, 1);
+                            // 补充新细火花
+                            this.sparks.push(new Spark(
+                                this.x, 
+                                this.y, 
+                                this.color, 
+                                {
+                                    x: (Math.random() - 0.5) * 0.4,
+                                    y: (Math.random() - 0.5) * 0.4
+                                }, 
+                                0.5,
+                                15
+                            ));
+                        }
+                    });
+                    
+                    // 检查是否到达目标位置
+                    if (Math.hypot(this.targetX - this.x, this.targetY - this.y) < 4) {
+                        this.explode();
+                    }
+                }
+                
+                // 更新粒子
+                this.particles.forEach((particle, index) => {
+                    if (particle.alpha <= 0) {
+                        this.particles.splice(index, 1);
+                    } else {
+                        particle.update();
+                    }
+                });
+            }
+            
+            explode() {
+                this.exploded = true;
+                const particleCount = this.isCenter ? this.stageConfig.particleCount * 1.5 : this.stageConfig.particleCount; // 减少中央烟花倍率
+                const shape = this.stageConfig.explosionShape;
+                
+                for (let i = 0; i < particleCount; i++) {
+                    let velocity;
+                    
+                    // 调整爆炸速度，更贴近真实
+                    switch(shape) {
+                        case 'circle':
+                            const angle = (i / particleCount) * Math.PI * 2;
+                            const speed = this.isCenter ? (Math.random() * 4 + 2) : (Math.random() * 3 + 1.5); // 降低爆炸速度
+                            velocity = {
+                                x: Math.cos(angle) * speed,
+                                y: Math.sin(angle) * speed
+                            };
+                            break;
+                            
+                        case 'spiral':
+                            const spiralAngle = (i / particleCount) * Math.PI * 8; // 减少螺旋圈数
+                            const spiralSpeed = this.isCenter ? (Math.random() * 3.5 + 1.5) : (Math.random() * 2.5 + 1.2);
+                            velocity = {
+                                x: Math.cos(spiralAngle) * spiralSpeed,
+                                y: Math.sin(spiralAngle) * spiralSpeed
+                            };
+                            break;
+                            
+                        case 'heart':
+                            const t = (i / particleCount) * Math.PI * 2;
+                            const heartX = 16 * Math.pow(Math.sin(t), 3);
+                            const heartY = 13 * Math.cos(t) - 5 * Math.cos(2*t) - 2 * Math.cos(3*t) - Math.cos(4*t);
+                            const scale = this.isCenter ? 0.2 : 0.15; // 缩小心形尺寸
+                            velocity = {
+                                x: heartX * scale * (Math.random() * 0.4 + 0.6), // 降低扩散
+                                y: -heartY * scale * (Math.random() * 0.4 + 0.6)
+                            };
+                            break;
+                            
+                        case 'star':
+                            const starPoints = 5;
+                            const starAngle = (i / particleCount) * Math.PI * 2;
+                            const starSpeed = this.isCenter ? (Math.random() * 3.5 + 1.5) : (Math.random() * 2.5 + 1.2);
+                            const starFactor = (starPoints % 2 === 0) ? 2 : 1;
+                            const radius = 1 + 0.2 * Math.sin(starPoints * starAngle); // 缩小星形起伏
+                            velocity = {
+                                x: Math.cos(starAngle) * radius * starSpeed,
+                                y: Math.sin(starAngle) * radius * starSpeed
+                            };
+                            break;
+                            
+                        default:
+                            velocity = {
+                                x: (Math.random() - 0.5) * 4, // 降低随机扩散
+                                y: (Math.random() - 0.5) * 4
+                            };
+                    }
+                    
+                    const color = this.stageConfig.colors[Math.floor(Math.random() * this.stageConfig.colors.length)];
+                    const size = this.isCenter ? (Math.random() * 2 + 1) : (Math.random() * 1.5 + 0.8); // 缩小粒子尺寸
+                    this.particles.push(new Particle(
+                        this.x, 
+                        this.y, 
+                        color, 
+                        velocity, 
+                        size,
+                        this.stageConfig
+                    ));
+                }
+                
+                // 中央烟花庆祝效果（黑白版）
+                if (this.isCenter) {
+                    createCelebrationEffect(this.x, this.y);
+                }
+            }
+        }
+        
+        // 创建黑白庆祝效果
+        function createCelebrationEffect(x, y) {
+            for (let i = 0; i < 6; i++) { // 减少庆祝元素数量
+                setTimeout(() => {
+                    const celebration = document.createElement('div');
+                    celebration.className = 'celebration';
+                    celebration.textContent = '⚪'; // 黑白元素替代彩色
+                    celebration.style.left = `${x + (Math.random() - 0.5) * 150}px`; // 缩小扩散范围
+                    celebration.style.top = `${y + (Math.random() - 0.5) * 150}px`;
+                    document.getElementById('container').appendChild(celebration);
+                    
+                    // 2秒后移除元素
+                    setTimeout(() => {
+                        celebration.remove();
+                    }, 2000);
+                }, i * 200);
+            }
+        }
+        
+        // 星星类（黑白细腻版）
+        class Star {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.size = Math.random() * 1.5 + 0.5; // 缩小星星尺寸
+                this.brightness = Math.random() * 0.4 + 0.2; // 降低亮度，避免抢镜
+                this.speed = Math.random() * 0.3 + 0.1; // 减慢移动速度
+            }
+            
+            draw() {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2, false);
+                ctx.fillStyle = `rgba(255, 255, 255, ${this.brightness})`;
+                ctx.fill();
+            }
+            
+            update() {
+                this.brightness = 0.2 + Math.sin(Date.now() * 0.0008 + this.x) * 0.3; // 减弱亮度波动
+                this.y += this.speed;
+                if (this.y > canvas.height) {
+                    this.y = 0;
+                    this.x = Math.random() * canvas.width;
+                }
+            }
+        }
+        
+        // 创建星星背景（减少数量，更简洁）
+        const stars = [];
+        for (let i = 0; i < 180; i++) {
+            stars.push(new Star());
+        }
+        
+        // 烟花数组
+        const fireworks = [];
+        
+        // 创建烟花
+        function createFirework(isCenter = false) {
+            let x, targetX, targetY;
+            
+            if (isCenter) {
+                x = canvas.width / 2;
+                targetX = canvas.width / 2;
+                targetY = canvas.height / 2 - 80; // 降低中央烟花目标高度
+            } else {
+                x = Math.random() * canvas.width;
+                targetX = canvas.width / 2 + (Math.random() - 0.5) * canvas.width * 0.7; // 缩小横向扩散
+                targetY = Math.random() * canvas.height * 0.4 + 50; // 限制纵向高度
+            }
+            
+            fireworks.push(new Firework(x, canvas.height, targetX, targetY, stages[currentStage], isCenter));
+        }
+        
+        // 更新阶段指示器
+        function updateStageIndicator() {
+            document.querySelectorAll('.stage-dot').forEach((dot, index) => {
+                if (index === currentStage) {
+                    dot.classList.add('active');
+                } else {
+                    dot.classList.remove('active');
+                }
+            });
+        }
+        
+        // 激活中央大烟花（弱化效果，更细腻）
+        function activateCenterFirework() {
+            if (centerFireworkActive) return; // 避免重复激活
+            centerFireworkActive = true;
+            centerFirework.style.opacity = 0.8; // 降低中央烟花透明度
+            
+            // 创建中央大烟花
+            createFirework(true);
+            
+            // 2.5秒后隐藏中央烟花效果（缩短显示时间）
+            setTimeout(() => {
+                centerFirework.style.opacity = 0;
+                centerFireworkActive = false;
+            }, 2500);
+        }
+        
+        // 动画循环（优化背景拖尾，避免线条堆积）
+        function animate() {
+            requestAnimationFrame(animate);
+            
+            // 更新计时器
+            elapsedTime = Math.floor((Date.now() - startTime) / 1000);
+            const remainingTime = Math.max(0, 15 - elapsedTime);
+            timer.textContent = `00:${remainingTime.toString().padStart(2, '0')}`;
+            
+            // 更新当前阶段
+            const newStage = Math.min(Math.floor(elapsedTime / 3), 4);
+            if (newStage !== currentStage) {
+                currentStage = newStage;
+                updateStageIndicator();
+                
+                // 阶段切换时创建烟花（减少数量，避免密集）
+                for (let i = 0; i < 5; i++) {
+                    setTimeout(() => createFirework(), i * 250);
+                }
+                
+                // 阶段2和4激活中央大烟花
+                if (currentStage === 1 || currentStage === 3) {
+                    activateCenterFirework();
+                }
+            }
+            
+            // 背景拖尾（加快消失速度，避免线条残留）
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.18)'; // 提高透明度，拖尾消失更快
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // 绘制和更新星星
+            stars.forEach(star => {
+                star.update();
+                star.draw();
+            });
+            
+            // 绘制和更新烟花
+            fireworks.forEach((firework, index) => {
+                firework.update();
+                firework.draw();
+                
+                // 绘制烟花粒子
+                firework.particles.forEach(particle => {
+                    particle.draw();
+                });
+                
+                // 移除已经消失的烟花
+                if (firework.exploded && firework.particles.length === 0) {
+                    fireworks.splice(index, 1);
+                }
+            });
+            
+            // 随机创建新烟花（降低频率，避免密集）
+            const fireworkProbability = 0.02 + (currentStage * 0.015); // 降低生成概率
+            if (Math.random() < fireworkProbability && fireworks.length < 12) { // 限制最大数量
+                createFirework();
+            }
+            
+            // 12秒后显示生日祝福
+            if (elapsedTime >= 12 && elapsedTime < 15) {
+                birthdayMessage.classList.remove('hidden');
+                birthdayMessage.style.opacity = Math.min(1, (elapsedTime - 12) / 2);
+                
+                // 最后阶段激活中央大烟花
+                if (elapsedTime >= 12.5 && !centerFireworkActive) {
+                    activateCenterFirework();
+                }
+            }
+            
+            // 15秒后停止动画
+            if (elapsedTime >= 15) {
+                // 保持祝福文字显示
+                birthdayMessage.style.opacity = 1;
+            }
+        }
+        
+        // 启动动画
+        startTime = Date.now();
+        updateStageIndicator();
+        animate();
+        
+        // 窗口大小调整时重置Canvas
+        window.addEventListener('resize', function() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
+    </script>
+</body>
+</html>
